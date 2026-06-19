@@ -1,0 +1,37 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#cf6e40"/>
+      <stop offset="1" stop-color="#a23f1c"/>
+    </linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- open book -->
+  <g filter="url(#sh)">
+    <path d="M256 168 C214 144 150 144 104 158 L104 310 C150 296 214 296 256 320 Z" fill="#ffffff"/>
+    <path d="M256 168 C298 144 362 144 408 158 L408 310 C362 296 298 296 256 320 Z" fill="#fff3e6"/>
+    <rect x="252" y="166" width="8" height="156" rx="4" fill="#e9c9ad"/>
+  </g>
+
+  <!-- page lines -->
+  <g stroke="#e3bd98" stroke-width="6" stroke-linecap="round">
+    <line x1="140" y1="194" x2="226" y2="204"/>
+    <line x1="140" y1="222" x2="226" y2="232"/>
+    <line x1="286" y1="204" x2="372" y2="194"/>
+    <line x1="286" y1="232" x2="372" y2="222"/>
+  </g>
+
+  <!-- play badge (hint de video) -->
+  <circle cx="256" cy="298" r="33" fill="#2b2218"/>
+  <path d="M247 283 L274 298 L247 313 Z" fill="#ffffff"/>
+
+  <!-- wordmark -->
+  <text x="256" y="406" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="800" letter-spacing="-1">
+    <tspan fill="#ffffff">Ce</tspan><tspan fill="#ffe1c2">Carte</tspan>
+  </text>
+</svg>
