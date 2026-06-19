@@ -29,7 +29,7 @@ async function signIn() {
   const res = await fetch(`${BASE}/users/sign_in.json`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'User-Agent': UA },
-    body: JSON.stringify({ user: { email: TP_EMAIL.value(), password: TP_PASS.value() } })
+    body: JSON.stringify({ user: { email: TP_EMAIL.value().trim(), password: TP_PASS.value().trim() } })
   });
   const at = res.headers.get('access-token');
   if (!at) throw new HttpsError('unauthenticated', `2P sign-in eșuat (status ${res.status})`);
