@@ -2,21 +2,28 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Admin = emailul verificat al proprietarului. Adaugă alte emailuri în listă dacă e nevoie.
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['alex@rsjoomla.com'];
+    }
+
     // Cărțile afișate pe site: oricine le citește, doar adminul scrie
     match /books/{id} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
 
     // Ofertele/merchanții (instrument intern): doar admin
     match /offers/{id} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAdmin();
     }
 
-    // Lead-uri (abonări newsletter): oricine poate crea, doar adminul vede
+    // Lead-uri (abonări newsletter): oricine poate crea, doar adminul vede/gestionează
     match /leads/{id} {
       allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow read, update, delete: if isAdmin();
     }
   }
 }

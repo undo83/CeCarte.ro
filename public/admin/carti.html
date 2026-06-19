@@ -121,8 +121,8 @@
 <script type="module">
 import { isConfigured, getAuth, authMod, getDb, firestore } from '../js/firebase-init.js';
 
-// Lista de admini autorizati (client-side). Gol = oricine logat (până blocăm regulile).
-const ADMIN_EMAILS = [];
+// Lista de admini autorizati (client-side). Securitatea reală e în Firestore Rules.
+const ADMIN_EMAILS = ['alex@rsjoomla.com'];
 
 const $ = id => document.getElementById(id);
 const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
