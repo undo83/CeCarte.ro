@@ -21,6 +21,9 @@ Thumbs.db
 .env.*
 serviceAccountKey.json
 
+# Script local de explorare API (rulat o singură dată, nu în repo)
+explore-2p.mjs
+
 # Asset-uri de producție video/audio (binare mari — doar local, nu în repo)
 *.mp4
 *.mov
