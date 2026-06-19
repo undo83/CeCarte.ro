@@ -28,3 +28,18 @@ export async function getDb() {
 export async function firestore() {
   return import(`${SDK}/firebase-firestore.js`);
 }
+
+let _auth = null;
+export async function getAuth() {
+  if (!isConfigured) return null;
+  if (_auth) return _auth;
+  const app = await getApp();
+  const { getAuth: _init } = await import(`${SDK}/firebase-auth.js`);
+  _auth = _init(app);
+  return _auth;
+}
+
+// Helper reutilizabil: importă funcțiile de auth (signInWithPopup, GoogleAuthProvider, etc.)
+export async function authMod() {
+  return import(`${SDK}/firebase-auth.js`);
+}
