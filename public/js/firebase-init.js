@@ -43,3 +43,22 @@ export async function getAuth() {
 export async function authMod() {
   return import(`${SDK}/firebase-auth.js`);
 }
+
+let _functions = null;
+export async function getFunctions() {
+  if (!isConfigured) return null;
+  if (_functions) return _functions;
+  const app = await getApp();
+  const { getFunctions: _init } = await import(`${SDK}/firebase-functions.js`);
+  _functions = _init(app, 'europe-west1');
+  return _functions;
+}
+
+// Cheamă o Cloud Function callable și întoarce direct datele.
+export async function callFunction(name, data) {
+  const fns = await getFunctions();
+  if (!fns) throw new Error('Firebase neconfigurat');
+  const { httpsCallable } = await import(`${SDK}/firebase-functions.js`);
+  const res = await httpsCallable(fns, name)(data);
+  return res.data;
+}

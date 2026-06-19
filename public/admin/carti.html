@@ -87,6 +87,15 @@
     </div>
 
     <div class="card">
+      <h3 style="margin-bottom:10px">🔎 Caută în 2Performant (auto-fill)</h3>
+      <div class="row">
+        <div style="flex:1"><input id="s-query" placeholder="ex: verity, atomic habits, numele vantului…"></div>
+        <button class="btn" id="s-btn" type="button" style="flex:0">Caută</button>
+      </div>
+      <div id="s-results" style="margin-top:12px"></div>
+    </div>
+
+    <div class="card">
       <h3 id="form-title" style="margin-bottom:14px">Adaugă o carte</h3>
       <input type="hidden" id="f-id">
       <div class="row">
@@ -133,7 +142,7 @@
 </div>
 
 <script type="module">
-import { isConfigured, getAuth, authMod, getDb, firestore } from '../js/firebase-init.js';
+import { isConfigured, getAuth, authMod, getDb, firestore, callFunction } from '../js/firebase-init.js';
 
 // Lista de admini autorizati (client-side). Securitatea reală e în Firestore Rules.
 const ADMIN_EMAILS = ['alex@rsjoomla.com'];
@@ -282,6 +291,40 @@ async function removeBook(id, title) {
   const { doc, deleteDoc } = fs;
   try { await deleteDoc(doc(db, 'books', id)); await renderList(); }
   catch (e) { alert('Eroare la ștergere: ' + e.message); }
+}
+
+// ---- Căutare 2Performant (auto-fill) ----
+$('s-btn').onclick = async () => {
+  const q = $('s-query').value.trim();
+  const box = $('s-results');
+  if (q.length < 2) { box.innerHTML = '<p class="small">Scrie cel puțin 2 caractere.</p>'; return; }
+  box.innerHTML = '<p class="small">Se caută în feed-urile merchanților…</p>';
+  try {
+    const { results } = await callFunction('searchProducts', { query: q });
+    if (!results || !results.length) { box.innerHTML = '<p class="small">Niciun produs găsit.</p>'; return; }
+    box.innerHTML = results.map((r, i) => `
+      <div class="sr book-item" data-i="${i}" style="cursor:pointer">
+        ${r.image ? `<img src="${r.image}" style="width:34px;height:50px;object-fit:cover;border-radius:5px">` : '<span class="emoji">📚</span>'}
+        <div class="meta"><b>${r.title}</b><span>${r.merchant}${r.price ? ' · ' + r.price + ' lei' : ''}${r.active ? '' : ' · inactiv'}</span></div>
+        <div class="acts"><button class="btn" type="button" style="padding:6px 10px;font-size:12px">Folosește</button></div>
+      </div>`).join('');
+    [...box.querySelectorAll('.sr')].forEach(el => el.onclick = () => fillFromProduct(results[+el.dataset.i]));
+  } catch (e) {
+    box.innerHTML = `<p class="banner bad">Eroare: ${e.message}</p>`;
+  }
+};
+$('s-query').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('s-btn').click(); } });
+
+function fillFromProduct(r) {
+  const parts = (r.title || '').split(/\s+[-–]\s+/);
+  $('f-title').value = parts[0] || r.title || '';
+  if (parts.length > 1) $('f-author').value = parts.slice(1).join(' - ');
+  if (r.category) $('f-genre').value = r.category;
+  if (r.image) $('f-cover').value = r.image;
+  $('merchant-rows').innerHTML = '';
+  addMerchantRow({ name: r.merchant, url: r.url, primary: true });
+  $('form-title').textContent = 'Adaugă: ' + $('f-title').value;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
 </body>
