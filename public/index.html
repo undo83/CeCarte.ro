@@ -72,6 +72,11 @@
 
 <div class="wrap">
 
+  <section id="videos" style="padding-top:36px;display:none">
+    <h2 class="sec-title">🎬 Recenzii video</h2>
+    <div id="video-grid"></div>
+  </section>
+
   <section id="recomandari" style="padding-top:36px">
     <h2 class="sec-title">Top recomandări</h2>
     <div id="book-grid"><div class="loading">Se încarcă recomandările…</div></div>
@@ -122,9 +127,22 @@ function renderBook(b){
   </div>`;
 }
 
+function renderVideos(books){
+  const withV = books.filter(b => b.tiktokUrl);
+  if(!withV.length) return;
+  const vg = document.getElementById('video-grid');
+  vg.innerHTML = withV.map(b => {
+    const id = (b.tiktokUrl.split('/video/')[1] || '').split(/[?#]/)[0];
+    return `<blockquote class="tiktok-embed" cite="${b.tiktokUrl}" data-video-id="${id}" style="max-width:325px;min-width:280px;margin:0 auto 18px"><section><a href="${b.tiktokUrl}" target="_blank" rel="noopener">${b.title}</a></section></blockquote>`;
+  }).join('');
+  document.getElementById('videos').style.display = 'block';
+  const s = document.createElement('script'); s.async = true; s.src = 'https://www.tiktok.com/embed.js'; document.body.appendChild(s);
+}
+
 try {
   const books = await loadBooks();
   grid.innerHTML = books.map(renderBook).join('');
+  renderVideos(books);
 } catch (e) {
   grid.innerHTML = '<div class="loading">Nu am putut încărca recomandările.</div>';
   console.error(e);

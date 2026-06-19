@@ -20,3 +20,12 @@ Thumbs.db
 .env
 .env.*
 serviceAccountKey.json
+
+# Asset-uri de producție video/audio (binare mari — doar local, nu în repo)
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.mp3
+*.wav
+content/**/*.webp

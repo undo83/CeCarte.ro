@@ -112,7 +112,12 @@
       </div>
 
       <div class="mt">
-        <label>🎬 Script video TikTok (intern — hook + corp + CTA)</label>
+        <label>🎬 Link video TikTok (apare pe site la „Recenzii video")</label>
+        <input id="f-tiktok" placeholder="https://www.tiktok.com/@cecarte.ro/video/...">
+      </div>
+
+      <div class="mt">
+        <label>📝 Script video TikTok (intern — hook + corp + CTA)</label>
         <textarea id="f-script" rows="7" placeholder="[HOOK 0-3s] …&#10;[CORP] …&#10;[CTA] …&#10;Caption / Hashtags"></textarea>
       </div>
 
@@ -207,7 +212,7 @@ function collectMerchants() {
 function resetForm() {
   $('f-id').value = ''; $('f-title').value = ''; $('f-author').value = '';
   $('f-genre').value = ''; $('f-emoji').value = '📖'; $('f-rating').value = '5';
-  $('f-blurb').value = ''; $('f-order').value = '1'; $('f-script').value = ''; $('f-cover').value = '';
+  $('f-blurb').value = ''; $('f-order').value = '1'; $('f-script').value = ''; $('f-cover').value = ''; $('f-tiktok').value = '';
   $('merchant-rows').innerHTML = ''; addMerchantRow();
   $('form-title').textContent = 'Adaugă o carte';
   show('btn-cancel', false);
@@ -222,6 +227,7 @@ $('btn-save').onclick = async () => {
     emoji: $('f-emoji').value.trim() || '📚', rating: Number($('f-rating').value) || 5,
     blurb: $('f-blurb').value.trim(), order: Number($('f-order').value) || 0,
     cover: $('f-cover').value.trim(),
+    tiktokUrl: $('f-tiktok').value.trim(),
     videoScript: $('f-script').value.trim(),
     merchants: collectMerchants(), updatedAt: fs.serverTimestamp()
   };
@@ -249,7 +255,7 @@ async function renderList() {
       el.className = 'book-item';
       el.innerHTML = `
         ${b.cover ? `<img src="${b.cover}" style="width:34px;height:50px;object-fit:cover;border-radius:5px">` : `<span class="emoji">${b.emoji || '📚'}</span>`}
-        <div class="meta"><b>${b.title}</b><span>${b.author || ''} · ${b.genre || ''} · ⭐${b.rating || ''} · ${(b.merchants||[]).length} merchanți · ordine ${b.order ?? ''}${b.videoScript ? ' · 🎬 script' : ''}</span></div>
+        <div class="meta"><b>${b.title}</b><span>${b.author || ''} · ${b.genre || ''} · ⭐${b.rating || ''} · ${(b.merchants||[]).length} merchanți · ordine ${b.order ?? ''}${b.tiktokUrl ? ' · ▶️ video' : ''}${b.videoScript ? ' · 🎬 script' : ''}</span></div>
         <div class="acts"><button class="btn-ghost edit">Editează</button><button class="btn-bad del">Șterge</button></div>`;
       el.querySelector('.edit').onclick = () => loadForEdit(d.id, b);
       el.querySelector('.del').onclick = () => removeBook(d.id, b.title);
@@ -262,7 +268,7 @@ function loadForEdit(id, b) {
   $('f-id').value = id; $('f-title').value = b.title || ''; $('f-author').value = b.author || '';
   $('f-genre').value = b.genre || ''; $('f-emoji').value = b.emoji || '📖';
   $('f-rating').value = b.rating || 5; $('f-blurb').value = b.blurb || ''; $('f-order').value = b.order ?? 0;
-  $('f-cover').value = b.cover || ''; $('f-script').value = b.videoScript || '';
+  $('f-cover').value = b.cover || ''; $('f-tiktok').value = b.tiktokUrl || ''; $('f-script').value = b.videoScript || '';
   $('merchant-rows').innerHTML = '';
   (b.merchants || []).forEach(addMerchantRow);
   if (!(b.merchants || []).length) addMerchantRow();
