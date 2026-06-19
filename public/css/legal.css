@@ -1,0 +1,32 @@
+:root{
+  --bg:#faf6f0; --ink:#2b2218; --muted:#7a6a55; --card:#fff;
+  --accent:#b5512f; --line:#ece3d6; --shadow:0 8px 30px rgba(80,55,30,.08);
+  --font:'Segoe UI',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px}
+header{position:sticky;top:0;z-index:20;background:rgba(250,246,240,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;max-width:760px;margin:0 auto}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.3px;text-decoration:none;color:var(--ink)}
+.logo span{color:var(--accent)}
+.nav a.home{font-size:13px;color:var(--muted);text-decoration:none;font-weight:600}
+main{padding:38px 0 50px}
+h1{font-size:30px;letter-spacing:-.5px;margin-bottom:6px}
+.updated{color:var(--muted);font-size:13px;margin-bottom:8px}
+.note{background:#fff5e9;border:1px dashed var(--accent);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--accent);margin:18px 0}
+h2{font-size:20px;margin:28px 0 8px;letter-spacing:-.3px}
+h3{font-size:16px;margin:18px 0 6px}
+p{margin:8px 0;font-size:15px}
+ul,ol{margin:8px 0 8px 22px}
+li{margin:5px 0;font-size:15px}
+a{color:var(--accent)}
+.toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:18px 0;box-shadow:var(--shadow)}
+.toc b{font-size:13px;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.toc a{display:inline-block;margin:3px 10px 3px 0;font-size:14px}
+table.info{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+table.info th,table.info td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+table.info th{background:#f3ece1;font-weight:700}
+footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--muted);font-size:13px;text-align:center}
+footer a{color:var(--muted);margin:0 6px}
+.placeholder{background:#fff3cd;padding:1px 6px;border-radius:4px;font-weight:600;color:#8a6d00}
