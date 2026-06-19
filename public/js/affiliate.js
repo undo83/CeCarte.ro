@@ -9,9 +9,9 @@ export const AFF_CODE = '921ba67fe';
 
 // domeniu merchant -> codul `unique` din „Get Link". Adaugă pe măsură ce generezi linkuri.
 export const MERCHANT_QUICKLINK = {
-  'librex.ro': '3085d2457'
+  'librex.ro': '3085d2457',
+  'nemira.ro': '9617003d6'
   // 'bookbite.ro': '...',
-  // 'nemira.ro': '...',
   // 'edituracorint.ro': '...'
 };
 
