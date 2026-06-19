@@ -107,13 +107,14 @@
 
 <script type="module">
 import { loadBooks, saveLead } from './js/books.js';
+import { affiliateLink } from './js/affiliate.js';
 
 const grid = document.getElementById('book-grid');
 const stars = n => '★★★★★☆☆☆☆☆'.slice(5 - n, 10 - n);
 
 function renderBook(b){
   const merchants = (b.merchants || []).map(m =>
-    `<a class="buy ${m.primary ? '' : 'alt'}" href="${m.url || '#'}" target="_blank" rel="sponsored noopener">${m.name}${m.primary ? ' →' : ''}</a>`
+    `<a class="buy ${m.primary ? '' : 'alt'}" href="${affiliateLink(m.url)}" target="_blank" rel="sponsored noopener">${m.name}${m.primary ? ' →' : ''}</a>`
   ).join('');
   return `<div class="book">
     <div class="cover">${b.cover ? `<img src="${b.cover}" alt="${b.title}" loading="lazy">` : (b.emoji || '📚')}</div>
