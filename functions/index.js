@@ -40,6 +40,8 @@ function affiliateUrl(unique, url) {
   return `https://event.2performant.com/events/click?ad_type=quicklink&aff_code=${AFF_CODE}&unique=${unique}&redirect_to=${encodeURIComponent(url)}`;
 }
 
+const norm = s => (s || '').toString().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+
 export const searchProducts = onCall(
   { secrets: [TP_EMAIL, TP_PASS], cors: true, region: 'europe-west1', maxInstances: 5 },
   async (req) => {
@@ -50,20 +52,27 @@ export const searchProducts = onCall(
     if (query.length < 2) throw new HttpsError('invalid-argument', 'Caută cel puțin 2 caractere.');
 
     const auth = await signIn();
-    const perFeed = Number(req.data?.perFeed) || 4;
+    const qn = norm(query);
+    const words = qn.split(/\s+/).filter(w => w.length > 1);
+    const seen = new Set();
     const results = [];
 
     for (const f of FEEDS) {
       try {
-        const url = `${BASE}/affiliate/product_feeds/${f.id}/products.json?filter[search]=${encodeURIComponent(query)}&perpage=${perFeed}`;
+        // 2P filtrează (fuzzy) cu filter[query]; cerem mai multe și filtrăm local pe relevanță.
+        const url = `${BASE}/affiliate/product_feeds/${f.id}/products.json?filter[query]=${encodeURIComponent(query)}&perpage=25`;
         const res = await fetch(url, { headers: auth });
         if (!res.ok) continue;
         const j = await res.json();
         for (const p of (j.products || [])) {
-          if (!p.url) continue;
+          if (!p.url || !p.title) continue;
+          const tn = norm(p.title);
+          const relevant = tn.includes(qn) || (words.length > 0 && words.every(w => tn.includes(w)));
+          if (!relevant || seen.has(p.url)) continue;
+          seen.add(p.url);
           results.push({
             merchant: f.merchant,
-            title: p.title || '',
+            title: p.title,
             brand: p.brand || '',
             category: p.category || '',
             price: p.price != null ? Number(p.price) : null,
