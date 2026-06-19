@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Cărțile afișate pe site: oricine le citește, doar adminul scrie
+    match /books/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Ofertele/merchanții (instrument intern): doar admin
+    match /offers/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Lead-uri (abonări newsletter): oricine poate crea, doar adminul vede
+    match /leads/{id} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+  }
+}

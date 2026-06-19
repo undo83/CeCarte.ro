@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparare Oferte — CeCarte (intern)</title>
+<style>
+  :root{
+    --bg:#0f1320; --panel:#171c2e; --panel-2:#1e2438; --ink:#e8ecf6; --muted:#8b94ad;
+    --accent:#6d7cff; --ok:#37c98b; --warn:#f0b352; --bad:#ef6a6a; --line:#2a3149;
+    --font:'Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);padding:24px 16px 60px}
+  .wrap{max-width:1100px;margin:0 auto}
+  h1{font-size:24px;margin-bottom:4px}
+  .lead{color:var(--muted);font-size:14px;margin-bottom:22px}
+  .lead b{color:var(--accent)}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;font-weight:600;font-size:14px;padding:11px 16px}
+  .btn{background:var(--accent);color:#fff}
+  .btn-ghost{background:var(--panel-2);color:var(--ink);border:1px solid var(--line)}
+  .table-scroll{overflow-x:auto;border-radius:14px;border:1px solid var(--line);background:var(--panel)}
+  table{border-collapse:collapse;width:100%;min-width:980px;font-size:13px}
+  th{background:var(--panel-2);color:var(--muted);text-align:left;padding:11px 10px;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;border-bottom:1px solid var(--line)}
+  td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  input,select{font-family:inherit;font-size:13px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;width:100%}
+  input:focus,select:focus{outline:none;border-color:var(--accent)}
+  .num{width:78px;text-align:right}
+  .calc{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600;text-align:right;white-space:nowrap}
+  .score{font-weight:800;text-align:center;border-radius:8px;padding:6px 4px;min-width:46px;display:inline-block}
+  .s-hi{background:rgba(55,201,139,.16);color:var(--ok)}
+  .s-mid{background:rgba(240,179,82,.16);color:var(--warn)}
+  .s-lo{background:rgba(239,106,106,.16);color:var(--bad)}
+  .del{background:none;color:var(--muted);font-size:18px;padding:2px 8px;border-radius:6px}
+  .del:hover{color:var(--bad)}
+  .hint{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6}
+  .hint code{background:var(--panel-2);padding:1px 6px;border-radius:5px;color:var(--accent)}
+  th small{display:block;font-weight:400;text-transform:none;letter-spacing:0;color:#5f6987;font-size:10px}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:6px}
+  .tag{font-size:11px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);padding:3px 9px;border-radius:999px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div>
+      <h1>🎯 Comparare Oferte 2Performant</h1>
+      <p class="lead">Instrument intern · datele se salvează automat în browser · <b>sortează după Scor</b> ca să vezi ofertele de top.</p>
+    </div>
+    <span class="tag">CeCarte · uz intern</span>
+  </div>
+
+  <div class="bar">
+    <button class="btn" onclick="addRow()">+ Adaugă ofertă</button>
+    <button class="btn-ghost" onclick="sortByScore()">⇅ Sortează după Scor</button>
+    <button class="btn-ghost" onclick="seedDemo()">Exemplu (Cărturești)</button>
+    <button class="btn-ghost" onclick="clearAll()">Șterge tot</button>
+  </div>
+
+  <div class="table-scroll">
+    <table id="t">
+      <thead>
+        <tr>
+          <th>Brand / Program</th>
+          <th>Categorie</th>
+          <th>Tip</th>
+          <th>Comision<small>% (0.09) sau lei</small></th>
+          <th>Coș mediu<small>lei</small></th>
+          <th>Conversie<small>% (0.05)</small></th>
+          <th>Validare<small>% (0.85)</small></th>
+          <th>Cookie<small>zile</small></th>
+          <th>PPC?</th>
+          <th>Câștig / vânz.<small>lei</small></th>
+          <th>Câștig / 100 click<small>lei</small></th>
+          <th>CPC max<small>break-even</small></th>
+          <th>Scor<small>0-100</small></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+
+  <p class="hint">
+    <b>Cum se calculează:</b>
+    <code>Câștig/vânzare = (Tip% ? Coș×Comision : Comision) × Validare</code> ·
+    <code>Câștig/100 click = Conversie × Câștig/vânzare × 100</code> ·
+    <code>CPC max = Câștig/100 click ÷ 100</code> (cât poți plăti maxim pe click ca să ieși pe zero).<br>
+    <b>Scor</b> = 50% câștig/click · 20% validare · 10% cookie · 20% PPC permis. Procentele se introduc ca zecimale: 9% → <code>0.09</code>, 85% → <code>0.85</code>.
+  </p>
+</div>
+
+<script>
+const KEY='cecarte_offers_v1';
+const cols=['brand','cat','tip','com','cos','conv','val','cookie','ppc'];
+let rows=load();
+
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}}
+function save(){localStorage.setItem(KEY,JSON.stringify(collect()))}
+function collect(){
+  return [...document.querySelectorAll('#body tr')].map(tr=>{
+    const o={};cols.forEach(c=>o[c]=tr.querySelector(`[data-k=${c}]`).value);return o;
+  });
+}
+
+function calc(o){
+  const num=v=>{const n=parseFloat(v);return isFinite(n)?n:0};
+  const com=num(o.com), cos=num(o.cos), conv=num(o.conv), val=num(o.val), cookie=num(o.cookie);
+  const perSale = (o.tip==='Procent'? cos*com : com);
+  const validSale = perSale*val;
+  const per100 = conv*validSale*100;
+  const cpcMax = per100/100;
+  let score = Math.min(per100/200,1)*50 + val*20 + Math.min(cookie/60,1)*10
+            + (o.ppc==='Da'?20:o.ppc==='Verifică'?10:0);
+  score = per100>0 ? Math.round(score) : 0;
+  return {validSale,per100,cpcMax,score};
+}
+
+function rowHTML(o={}){
+  const v=(k,d='')=>o[k]!==undefined?o[k]:d;
+  return `<tr>
+    <td><input data-k="brand" placeholder="ex: Cărturești" value="${v('brand')}"></td>
+    <td><input data-k="cat" placeholder="Cărți" value="${v('cat')}" style="width:90px"></td>
+    <td><select data-k="tip"><option ${v('tip')==='Procent'?'selected':''}>Procent</option><option ${v('tip')==='Fix'?'selected':''}>Fix</option></select></td>
+    <td><input data-k="com" class="num" placeholder="0.09" value="${v('com')}"></td>
+    <td><input data-k="cos" class="num" placeholder="120" value="${v('cos')}"></td>
+    <td><input data-k="conv" class="num" placeholder="0.05" value="${v('conv')}"></td>
+    <td><input data-k="val" class="num" placeholder="0.85" value="${v('val')}"></td>
+    <td><input data-k="cookie" class="num" placeholder="31" value="${v('cookie')}" style="width:60px"></td>
+    <td><select data-k="ppc" style="width:90px"><option ${v('ppc')==='Verifică'?'selected':''}>Verifică</option><option ${v('ppc')==='Da'?'selected':''}>Da</option><option ${v('ppc')==='Nu'?'selected':''}>Nu</option></select></td>
+    <td class="calc" data-c="validSale">–</td>
+    <td class="calc" data-c="per100">–</td>
+    <td class="calc" data-c="cpcMax">–</td>
+    <td><span class="calc" data-c="score"></span></td>
+    <td><button class="del" onclick="this.closest('tr').remove();refresh()">×</button></td>
+  </tr>`;
+}
+
+function refresh(){
+  document.querySelectorAll('#body tr').forEach(tr=>{
+    const o={};cols.forEach(c=>o[c]=tr.querySelector(`[data-k=${c}]`).value);
+    const r=calc(o);
+    tr.querySelector('[data-c=validSale]').textContent=r.validSale?r.validSale.toFixed(2):'–';
+    tr.querySelector('[data-c=per100]').textContent=r.per100?r.per100.toFixed(2):'–';
+    tr.querySelector('[data-c=cpcMax]').textContent=r.cpcMax?r.cpcMax.toFixed(2):'–';
+    const sc=tr.querySelector('[data-c=score]');
+    sc.textContent=r.score||'';
+    sc.className='score '+(r.score>=60?'s-hi':r.score>=35?'s-mid':'s-lo');
+  });
+  save();
+}
+
+function addRow(o){document.getElementById('body').insertAdjacentHTML('beforeend',rowHTML(o));refresh()}
+function sortByScore(){
+  const trs=[...document.querySelectorAll('#body tr')];
+  trs.sort((a,b)=>{
+    const ca=calc(Object.fromEntries(cols.map(c=>[c,a.querySelector(`[data-k=${c}]`).value])));
+    const cb=calc(Object.fromEntries(cols.map(c=>[c,b.querySelector(`[data-k=${c}]`).value])));
+    return cb.score-ca.score;
+  });
+  const body=document.getElementById('body');trs.forEach(t=>body.appendChild(t));refresh();
+}
+function clearAll(){if(confirm('Ștergi toate ofertele?')){document.getElementById('body').innerHTML='';refresh()}}
+function seedDemo(){addRow({brand:'Cărturești',cat:'Cărți',tip:'Procent',com:'0.09',cos:'120',conv:'0.0539',val:'0.96',cookie:'31',ppc:'Verifică'})}
+
+document.addEventListener('input',e=>{if(e.target.closest('#body'))refresh()});
+document.addEventListener('change',e=>{if(e.target.closest('#body'))refresh()});
+
+if(rows.length) rows.forEach(o=>addRow(o)); else { seedDemo(); }
+</script>
+</body>
+</html>

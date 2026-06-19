@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CeCarte — Ce carte citești următoarea?</title>
+<meta name="description" content="Recenzii video scurte ale celor mai bune cărți. Găsește următoarea ta lectură în 30 de secunde.">
+<style>
+  :root{
+    --bg:#faf6f0; --ink:#2b2218; --muted:#7a6a55; --card:#ffffff;
+    --accent:#b5512f; --accent-2:#e0a458; --line:#ece3d6;
+    --shadow:0 8px 30px rgba(80,55,30,.10);
+    --radius:18px; --font:'Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:520px;margin:0 auto;padding:0 18px}
+  header{position:sticky;top:0;z-index:20;background:rgba(250,246,240,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;max-width:520px;margin:0 auto}
+  .logo{font-weight:800;font-size:20px;letter-spacing:-.3px}
+  .logo span{color:var(--accent)}
+  .nav a{font-size:13px;color:var(--muted);text-decoration:none;font-weight:600}
+  .hero{text-align:center;padding:34px 0 22px}
+  .badge{display:inline-block;background:#fff;border:1px solid var(--line);color:var(--accent);font-size:12px;font-weight:700;padding:6px 14px;border-radius:999px;margin-bottom:16px;box-shadow:var(--shadow)}
+  h1{font-size:30px;line-height:1.15;letter-spacing:-.5px;margin-bottom:12px}
+  h1 em{color:var(--accent);font-style:normal}
+  .sub{color:var(--muted);font-size:16px;margin-bottom:22px}
+  .cta{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;font-size:16px;padding:15px 30px;border-radius:14px;box-shadow:0 6px 18px rgba(181,81,47,.35);transition:transform .15s}
+  .cta:active{transform:scale(.97)}
+  .video-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin:26px 0;border:1px solid var(--line)}
+  .video-frame{position:relative;aspect-ratio:9/16;max-height:480px;background:linear-gradient(160deg,#2b2218,#5a4326);display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .play{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+  .play::after{content:"";border-left:20px solid var(--accent);border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:5px}
+  .video-tag{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px}
+  .video-meta{padding:14px 16px}
+  .video-meta h3{font-size:16px;margin-bottom:3px}
+  .video-meta p{font-size:13px;color:var(--muted)}
+  section{padding:30px 0}
+  .sec-title{font-size:22px;letter-spacing:-.3px;margin-bottom:4px}
+  .sec-sub{color:var(--muted);font-size:14px;margin-bottom:20px}
+  .book{display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow)}
+  .cover{width:74px;height:104px;border-radius:10px;flex-shrink:0;background:linear-gradient(150deg,var(--accent-2),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px}
+  .book-info{flex:1;display:flex;flex-direction:column}
+  .book-info h4{font-size:15px;line-height:1.25}
+  .book-info .author{font-size:12px;color:var(--muted);margin-bottom:4px}
+  .book-info .blurb{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+  .stars{color:var(--accent-2);font-size:13px;margin-bottom:8px}
+  .merchant-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:auto}
+  .buy{font-size:12px;font-weight:700;text-decoration:none;padding:7px 12px;border-radius:9px;background:var(--accent);color:#fff}
+  .buy.alt{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+  .capture{background:linear-gradient(160deg,#2b2218,#4a3826);color:#fff;border-radius:var(--radius);padding:28px 22px;text-align:center;margin:30px 0}
+  .capture h3{font-size:20px;margin-bottom:8px}
+  .capture p{font-size:14px;opacity:.85;margin-bottom:18px}
+  .form{display:flex;gap:8px;flex-direction:column}
+  .form input{padding:14px;border-radius:12px;border:none;font-size:15px;font-family:inherit}
+  .form button{padding:14px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:700;font-size:15px;cursor:pointer}
+  .form small{opacity:.6;font-size:11px;margin-top:6px}
+  .disclosure{background:#fff;border:1px dashed var(--line);border-radius:12px;padding:14px;font-size:12px;color:var(--muted);margin:24px 0}
+  footer{text-align:center;padding:30px 0 40px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+  footer a{color:var(--muted)}
+  .loading{text-align:center;color:var(--muted);font-size:14px;padding:20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <div class="logo">Ce<span>Carte</span></div>
+    <a href="#recomandari">Recomandări</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <span class="badge">📚 Recenzii video în 30 de secunde</span>
+    <h1>Ce carte citești <em>următoarea</em>?</h1>
+    <p class="sub">Prezentăm pe scurt, în video, cărțile care chiar merită. Tu doar alegi și citești.</p>
+    <a href="#recomandari" class="cta">Vezi recomandările →</a>
+  </div>
+
+  <!-- VIDEO: aici embedezi video-ul TikTok/MP4 de prezentare -->
+  <div class="video-card">
+    <div class="video-frame" onclick="alert('Aici se va încărca video-ul de prezentare (TikTok embed sau MP4).')">
+      <div class="video-tag">▶ Recenzia săptămânii</div>
+      <div class="play"></div>
+    </div>
+    <div class="video-meta">
+      <h3>Cartea care m-a ținut treaz până la 3 dimineața</h3>
+      <p>30 sec · de ce merită + unde o iei la cel mai bun preț</p>
+    </div>
+  </div>
+
+  <section id="recomandari">
+    <h2 class="sec-title">Top recomandări</h2>
+    <p class="sec-sub">Alese pe sprânceană, comparate la mai multe librării.</p>
+    <div id="book-grid"><div class="loading">Se încarcă recomandările…</div></div>
+  </section>
+
+  <div class="capture">
+    <h3>Primește 3 recomandări noi în fiecare săptămână</h3>
+    <p>Cărți alese cu grijă, direct pe email. Gratuit, te dezabonezi oricând.</p>
+    <form class="form" id="lead-form">
+      <input type="email" id="lead-email" placeholder="Adresa ta de email" required>
+      <button type="submit">Vreau recomandările</button>
+      <small>Fără spam. Doar cărți bune.</small>
+    </form>
+  </div>
+
+  <div class="disclosure">
+    <strong>Transparență:</strong> CeCarte poate primi un mic comision dacă cumperi o carte prin link-urile noastre, fără niciun cost suplimentar pentru tine. Recomandăm doar cărți pe care le considerăm cu adevărat valoroase.
+  </div>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    © 2026 CeCarte.ro · <a href="#">Confidențialitate</a> · <a href="#">Termeni</a><br>
+    Recenzii video de cărți · Made with ☕ &amp; 📚
+  </div>
+</footer>
+
+<script type="module">
+import { loadBooks, saveLead } from './js/books.js';
+
+const grid = document.getElementById('book-grid');
+const stars = n => '★★★★★☆☆☆☆☆'.slice(5 - n, 10 - n);
+
+function renderBook(b){
+  const merchants = (b.merchants || []).map(m =>
+    `<a class="buy ${m.primary ? '' : 'alt'}" href="${m.url || '#'}" target="_blank" rel="sponsored noopener">${m.name}${m.primary ? ' →' : ''}</a>`
+  ).join('');
+  return `<div class="book">
+    <div class="cover">${b.emoji || '📚'}</div>
+    <div class="book-info">
+      <h4>${b.title || ''}</h4>
+      <div class="author">${b.author || ''} · ${b.genre || ''}</div>
+      ${b.blurb ? `<div class="blurb">${b.blurb}</div>` : ''}
+      <div class="stars">${stars(b.rating || 5)}</div>
+      <div class="merchant-row">${merchants}</div>
+    </div>
+  </div>`;
+}
+
+try {
+  const books = await loadBooks();
+  grid.innerHTML = books.map(renderBook).join('');
+} catch (e) {
+  grid.innerHTML = '<div class="loading">Nu am putut încărca recomandările.</div>';
+  console.error(e);
+}
+
+document.getElementById('lead-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button');
+  const email = document.getElementById('lead-email').value.trim();
+  btn.disabled = true;
+  await saveLead(email);
+  btn.textContent = 'Te-ai abonat! ✓';
+});
+</script>
+</body>
+</html>
