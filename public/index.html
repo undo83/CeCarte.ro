@@ -149,6 +149,18 @@ try {
   console.error(e);
 }
 
+// Tracking click pe link-urile de cumpărare (doar dacă pixelul e încărcat = consimțământ dat)
+grid.addEventListener('click', (e) => {
+  const a = e.target.closest('a.buy');
+  if (!a || !window.ttq) return;
+  const book = a.closest('.book');
+  ttq.track('ClickButton', {
+    content_type: 'product',
+    content_name: book ? (book.querySelector('h4')?.textContent || '') : '',
+    description: a.textContent.replace('→', '').trim() // merchantul (ex. Librex)
+  });
+});
+
 document.getElementById('lead-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = e.target.querySelector('button');
@@ -159,5 +171,6 @@ document.getElementById('lead-form').addEventListener('submit', async (e) => {
 });
 </script>
 <script src="/js/cookie-consent.js"></script>
+<script src="/js/tiktok-pixel.js"></script>
 </body>
 </html>
