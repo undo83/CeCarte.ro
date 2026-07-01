@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Cărți — CeCarte (intern)</title>
+<title>Admin — CeCarte (intern)</title>
 <style>
   :root{
     --bg:#0f1320; --panel:#171c2e; --panel-2:#1e2438; --ink:#e8ecf6; --muted:#8b94ad;
@@ -11,9 +11,9 @@
     --font:'Segoe UI',system-ui,-apple-system,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:var(--font);background:var(--bg);color:var(--ink);padding:24px 16px 60px}
-  .wrap{max-width:900px;margin:0 auto}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh}
   h1{font-size:24px;margin-bottom:4px}
+  h2{font-size:20px;margin-bottom:6px}
   .lead{color:var(--muted);font-size:14px;margin-bottom:20px}
   button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;font-weight:600;font-size:14px;padding:11px 16px}
   .btn{background:var(--accent);color:#fff}
@@ -25,7 +25,6 @@
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:18px}
   .row{display:flex;gap:12px;flex-wrap:wrap}
   .row > div{flex:1;min-width:120px}
-  .topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
   .tag{font-size:11px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);padding:4px 10px;border-radius:999px}
   .banner{padding:12px 14px;border-radius:10px;font-size:13px;margin-bottom:16px;line-height:1.5}
   .banner.warn{background:rgba(240,179,82,.12);border:1px solid rgba(240,179,82,.4);color:var(--warn)}
@@ -44,101 +43,155 @@
   .merchant-row label{display:flex;align-items:center;gap:4px;margin:0;white-space:nowrap;color:var(--ink)}
   .mt{margin-top:12px}
   .small{font-size:12px;color:var(--muted)}
-  .user-chip{display:flex;align-items:center;gap:8px;font-size:13px}
-  .user-chip img{width:26px;height:26px;border-radius:50%}
   code{background:var(--panel-2);padding:1px 6px;border-radius:5px;color:var(--accent)}
+
+  /* Ecrane pre-autentificare */
+  .center-wrap{max-width:460px;margin:0 auto;padding:60px 16px}
+
+  /* Shell cu sidebar */
+  .app-shell{display:flex;min-height:100vh;align-items:stretch}
+  .sidebar{width:230px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;padding:20px 14px;position:sticky;top:0;height:100vh}
+  .brand{font-size:17px;margin-bottom:22px;padding:0 6px}
+  .brand b{color:var(--accent)}
+  .nav{display:flex;flex-direction:column;gap:4px}
+  .nav-item{display:block;width:100%;text-align:left;background:transparent;color:var(--muted);
+    border-radius:10px;padding:11px 12px;font-weight:600}
+  .nav-item:hover{background:var(--panel-2);color:var(--ink)}
+  .nav-item.active{background:var(--accent);color:#fff}
+  .user-area{margin-top:auto;padding-top:16px;border-top:1px solid var(--line)}
+  .user-chip{display:flex;align-items:center;gap:8px;font-size:12px;flex-wrap:wrap}
+  .user-chip img{width:24px;height:24px;border-radius:50%}
+  .content{flex:1;min-width:0;padding:28px 26px 60px;max-width:920px}
+
+  /* Partenerii mei */
+  .partner-item{display:flex;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:10px;padding:12px 14px;margin-bottom:8px}
+  .partner-item .meta{flex:1}
+  .partner-item .meta b{font-size:14px}
+  .partner-item .meta span{display:block;font-size:12px;color:var(--muted)}
+  .badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}
+  .badge.ok{background:rgba(55,201,139,.14);color:var(--ok);border:1px solid rgba(55,201,139,.4)}
+  .badge.warn{background:rgba(240,179,82,.14);color:var(--warn);border:1px solid rgba(240,179,82,.4)}
+
+  @media (max-width:720px){
+    .app-shell{flex-direction:column}
+    .sidebar{width:auto;height:auto;position:static;flex-direction:row;align-items:center;
+      overflow-x:auto;padding:12px;gap:10px}
+    .brand{margin-bottom:0;white-space:nowrap}
+    .nav{flex-direction:row;gap:6px}
+    .nav-item{white-space:nowrap;padding:9px 12px}
+    .user-area{margin:0 0 0 auto;padding:0 0 0 12px;border:none;border-left:1px solid var(--line)}
+    .content{padding:20px 16px 50px}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar">
-    <div>
-      <h1>📚 Admin Cărți</h1>
-      <p class="lead">Adaugă / editează cărțile afișate pe site (colecția <code>books</code>).</p>
-    </div>
-    <div id="user-area">
-      <span class="tag">CeCarte · uz intern</span>
-    </div>
-  </div>
 
-  <div id="cfg-banner" class="banner bad hidden">
-    ⚠️ Firebase nu e configurat încă. Completează <code>public/js/firebase-config.js</code> cu datele reale din consolă, apoi reîncarcă.
-  </div>
+<div id="cfg-banner" class="banner bad hidden" style="margin:16px">
+  ⚠️ Firebase nu e configurat încă. Completează <code>public/js/firebase-config.js</code> cu datele reale din consolă, apoi reîncarcă.
+</div>
 
-  <!-- Ecran login -->
-  <div id="login-screen" class="card hidden" style="text-align:center;padding:40px 18px">
-    <p class="lead" style="margin-bottom:18px">Autentifică-te cu Google ca să gestionezi cărțile.</p>
-    <button class="btn" id="btn-login">Sign in cu Google</button>
-  </div>
+<!-- Ecran login -->
+<div id="login-screen" class="center-wrap hidden" style="text-align:center">
+  <h1>📚 CeCarte Admin</h1>
+  <p class="lead" style="margin:16px 0 20px">Autentifică-te cu Google ca să gestionezi cărțile.</p>
+  <button class="btn" id="btn-login">Sign in cu Google</button>
+</div>
 
-  <!-- Neautorizat -->
-  <div id="denied-screen" class="hidden">
-    <div class="banner bad">
-      Contul <b id="denied-email"></b> nu e admin. Spune-i lui Claude acest email/UID ca să-l adauge în reguli.
-      <div class="small mt">UID: <code id="denied-uid"></code></div>
-    </div>
-    <button class="btn-ghost" id="btn-logout-2">Schimbă contul</button>
+<!-- Neautorizat -->
+<div id="denied-screen" class="center-wrap hidden">
+  <div class="banner bad">
+    Contul <b id="denied-email"></b> nu e admin. Spune-i lui Claude acest email/UID ca să-l adauge în reguli.
+    <div class="small mt">UID: <code id="denied-uid"></code></div>
   </div>
+  <button class="btn-ghost" id="btn-logout-2">Schimbă contul</button>
+</div>
 
-  <!-- App -->
-  <div id="app" class="hidden">
+<!-- App cu sidebar -->
+<div id="app-shell" class="app-shell hidden">
+  <aside class="sidebar">
+    <div class="brand">📚 <b>CeCarte</b> Admin</div>
+    <nav class="nav">
+      <button class="nav-item" data-view="parteneri" type="button">🤝 Partenerii mei</button>
+      <button class="nav-item active" data-view="adauga" type="button">➕ Adaugă Carte</button>
+      <button class="nav-item" data-view="lista" type="button">📚 Lista Cărți</button>
+    </nav>
+    <div id="user-area" class="user-area"></div>
+  </aside>
+
+  <main class="content">
     <div id="lock-warn" class="banner warn hidden">
       🔓 Regulile Firestore nu sunt încă blocate pe emailul tău — oricine logat poate edita. Spune-i lui Claude emailul de admin ca să le blocheze.
     </div>
 
-    <div class="card">
-      <h3 style="margin-bottom:10px">🔎 Caută în 2Performant (auto-fill)</h3>
-      <div class="row">
-        <div style="flex:1"><input id="s-query" placeholder="ex: verity, atomic habits, numele vantului…"></div>
-        <button class="btn" id="s-btn" type="button" style="flex:0">Caută</button>
-      </div>
-      <div id="s-results" style="margin-top:12px"></div>
-    </div>
+    <!-- VIEW: Partenerii mei -->
+    <section id="view-parteneri" class="view hidden">
+      <h2>Partenerii mei</h2>
+      <p class="lead">Librăriile afiliate 2Performant. <b>Trackuit</b> = căutarea din admin și comisionul funcționează automat. <b>De configurat</b> = aprobat pe 2P, dar încă neconectat în site.</p>
+      <div id="partner-list"></div>
+    </section>
 
-    <div class="card">
-      <h3 id="form-title" style="margin-bottom:14px">Adaugă o carte</h3>
-      <input type="hidden" id="f-id">
-      <div class="row">
-        <div style="flex:3"><label>Titlu</label><input id="f-title" placeholder="ex: Numele vântului"></div>
-        <div><label>Emoji copertă</label><input id="f-emoji" placeholder="📖" value="📖"></div>
-        <div><label>Ordine</label><input id="f-order" type="number" placeholder="1" value="1"></div>
-      </div>
-      <div class="mt">
-        <label>Copertă — URL imagine (recomandat)</label>
-        <input id="f-cover" placeholder="/img/covers/nume.jpg sau https://...">
-      </div>
-      <div class="row mt">
-        <div style="flex:2"><label>Autor</label><input id="f-author" placeholder="Patrick Rothfuss"></div>
-        <div style="flex:2"><label>Gen</label><input id="f-genre" placeholder="Fantasy"></div>
-        <div><label>Rating (1-5)</label><input id="f-rating" type="number" min="1" max="5" value="5"></div>
-      </div>
-      <div class="mt"><label>Descriere scurtă (blurb)</label><textarea id="f-blurb" rows="2" placeholder="O frază care vinde cartea."></textarea></div>
-
-      <div class="mt">
-        <label>Linkuri merchanți (link de afiliere 2Performant)</label>
-        <div class="merchant-rows" id="merchant-rows"></div>
-        <button class="btn-ghost mt" id="btn-add-merchant" type="button" style="font-size:12px;padding:7px 12px">+ Adaugă merchant</button>
+    <!-- VIEW: Adaugă Carte -->
+    <section id="view-adauga" class="view">
+      <div class="card">
+        <h3 style="margin-bottom:10px">🔎 Caută în 2Performant (auto-fill)</h3>
+        <div class="row">
+          <div style="flex:1"><input id="s-query" placeholder="ex: verity, atomic habits, numele vantului…"></div>
+          <button class="btn" id="s-btn" type="button" style="flex:0">Caută</button>
+        </div>
+        <div id="s-results" style="margin-top:12px"></div>
       </div>
 
-      <div class="mt">
-        <label>🎬 Link video TikTok (apare pe site la „Recenzii video")</label>
-        <input id="f-tiktok" placeholder="https://www.tiktok.com/@cecarte.ro/video/...">
-      </div>
+      <div class="card">
+        <h3 id="form-title" style="margin-bottom:14px">Adaugă o carte</h3>
+        <input type="hidden" id="f-id">
+        <div class="row">
+          <div style="flex:3"><label>Titlu</label><input id="f-title" placeholder="ex: Numele vântului"></div>
+          <div><label>Emoji copertă</label><input id="f-emoji" placeholder="📖" value="📖"></div>
+          <div><label>Ordine</label><input id="f-order" type="number" placeholder="1" value="1"></div>
+        </div>
+        <div class="mt">
+          <label>Copertă — URL imagine (recomandat)</label>
+          <input id="f-cover" placeholder="/img/covers/nume.jpg sau https://...">
+        </div>
+        <div class="row mt">
+          <div style="flex:2"><label>Autor</label><input id="f-author" placeholder="Patrick Rothfuss"></div>
+          <div style="flex:2"><label>Gen</label><input id="f-genre" placeholder="Fantasy"></div>
+          <div><label>Rating (1-5)</label><input id="f-rating" type="number" min="1" max="5" value="5"></div>
+        </div>
+        <div class="mt"><label>Descriere scurtă (blurb)</label><textarea id="f-blurb" rows="2" placeholder="O frază care vinde cartea."></textarea></div>
 
-      <div class="mt">
-        <label>📝 Script video TikTok (intern — hook + corp + CTA)</label>
-        <textarea id="f-script" rows="7" placeholder="[HOOK 0-3s] …&#10;[CORP] …&#10;[CTA] …&#10;Caption / Hashtags"></textarea>
-      </div>
+        <div class="mt">
+          <label>Linkuri merchanți (link de afiliere 2Performant)</label>
+          <div class="merchant-rows" id="merchant-rows"></div>
+          <button class="btn-ghost mt" id="btn-add-merchant" type="button" style="font-size:12px;padding:7px 12px">+ Adaugă merchant</button>
+        </div>
 
-      <div class="row mt" style="justify-content:flex-end">
-        <button class="btn-ghost hidden" id="btn-cancel" type="button" style="flex:0">Anulează</button>
-        <button class="btn" id="btn-save" type="button" style="flex:0">Salvează cartea</button>
-      </div>
-    </div>
+        <div class="mt">
+          <label>🎬 Link video TikTok (apare pe site la „Recenzii video")</label>
+          <input id="f-tiktok" placeholder="https://www.tiktok.com/@cecarte.ro/video/...">
+        </div>
 
-    <h3 style="margin:18px 0 10px">Cărți publicate (<span id="count">0</span>)</h3>
-    <div id="book-list"><p class="small">Se încarcă…</p></div>
-  </div>
+        <div class="mt">
+          <label>📝 Script video TikTok (intern — hook + corp + CTA)</label>
+          <textarea id="f-script" rows="7" placeholder="[HOOK 0-3s] …&#10;[CORP] …&#10;[CTA] …&#10;Caption / Hashtags"></textarea>
+        </div>
+
+        <div class="row mt" style="justify-content:flex-end">
+          <button class="btn-ghost hidden" id="btn-cancel" type="button" style="flex:0">Anulează</button>
+          <button class="btn" id="btn-save" type="button" style="flex:0">Salvează cartea</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: Lista Cărți -->
+    <section id="view-lista" class="view hidden">
+      <h2>Cărți publicate (<span id="count">0</span>)</h2>
+      <p class="lead">Editează sau șterge cărțile din colecția <code>books</code>.</p>
+      <div id="book-list"><p class="small">Se încarcă…</p></div>
+    </section>
+  </main>
 </div>
 
 <script type="module">
@@ -147,6 +200,19 @@ import { isConfigured, getAuth, authMod, getDb, firestore, callFunction } from '
 // Lista de admini autorizati (client-side). Securitatea reală e în Firestore Rules.
 const ADMIN_EMAILS = ['alex@rsjoomla.com'];
 
+// Parteneri afiliați 2Performant. `tracked` = deja configurat în căutare + affiliate.js.
+const PARTNERS = [
+  { name: 'Librex',        domain: 'librex.ro',        tracked: true },
+  { name: 'Bookbite',      domain: 'bookbite.ro',      tracked: true },
+  { name: 'Nemira',        domain: 'nemira.ro',        tracked: true },
+  { name: 'Corint',        domain: 'edituracorint.ro', tracked: true },
+  { name: 'Little Nest',   domain: 'littlenest.ro',    tracked: true },
+  { name: 'Bookzone',      domain: 'bookzone.ro',      tracked: false },
+  { name: 'Elefant',       domain: 'elefant.ro',       tracked: false },
+  { name: 'Litera',        domain: 'litera.ro',        tracked: false },
+  { name: 'Târgul Cărții', domain: 'targulcartii.ro',  tracked: false }
+];
+
 const $ = id => document.getElementById(id);
 const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
 
@@ -154,6 +220,14 @@ if (!isConfigured) {
   show('cfg-banner', true);
   throw new Error('Firebase neconfigurat');
 }
+
+// ---- Navigație între view-uri ----
+const VIEWS = ['parteneri', 'adauga', 'lista'];
+function switchView(name) {
+  VIEWS.forEach(v => show('view-' + v, v === name));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+}
+document.querySelectorAll('.nav-item').forEach(b => b.onclick = () => switchView(b.dataset.view));
 
 const auth = await getAuth();
 const { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } = await authMod();
@@ -167,8 +241,7 @@ let db, fs;
 
 onAuthStateChanged(auth, async (user) => {
   show('login-screen', !user);
-  show('app', false); show('denied-screen', false);
-  $('user-area').innerHTML = '<span class="tag">CeCarte · uz intern</span>';
+  show('app-shell', false); show('denied-screen', false);
 
   if (!user) return;
 
@@ -183,18 +256,28 @@ onAuthStateChanged(auth, async (user) => {
   $('user-area').innerHTML = `<div class="user-chip">
     ${user.photoURL ? `<img src="${user.photoURL}" alt="">` : ''}
     <span>${user.email}</span>
-    <button class="btn-ghost" id="btn-logout" style="padding:6px 10px;font-size:12px">Ieși</button>
+    <button class="btn-ghost" id="btn-logout" style="padding:5px 9px;font-size:11px">Ieși</button>
   </div>`;
   $('btn-logout').onclick = logout;
 
   show('lock-warn', ADMIN_EMAILS.length === 0);
-  show('app', true);
+  show('app-shell', true);
 
   db = await getDb();
   fs = await firestore();
+  renderPartners();
   addMerchantRow();
   await renderList();
 });
+
+// ---- Partenerii mei ----
+function renderPartners() {
+  $('partner-list').innerHTML = PARTNERS.map(p => `
+    <div class="partner-item">
+      <div class="meta"><b>${p.name}</b><span>${p.domain}</span></div>
+      <span class="badge ${p.tracked ? 'ok' : 'warn'}">${p.tracked ? '✓ Trackuit' : '⚙ De configurat'}</span>
+    </div>`).join('');
+}
 
 // ---- Merchant rows ----
 function addMerchantRow(m = {}) {
@@ -246,6 +329,7 @@ $('btn-save').onclick = async () => {
     if (id) await setDoc(doc(db, 'books', id), data, { merge: true });
     else await addDoc(collection(db, 'books'), { ...data, createdAt: fs.serverTimestamp() });
     resetForm(); await renderList();
+    switchView('lista');
   } catch (e) { alert('Eroare la salvare: ' + e.message); }
 };
 
@@ -283,6 +367,7 @@ function loadForEdit(id, b) {
   if (!(b.merchants || []).length) addMerchantRow();
   $('form-title').textContent = 'Editează: ' + b.title;
   show('btn-cancel', true);
+  switchView('adauga');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
