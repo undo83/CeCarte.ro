@@ -92,3 +92,43 @@ export const searchProducts = onCall(
     return { query, count: results.length, results: results.slice(0, 24) };
   }
 );
+
+// Extrage domeniul (fără www) dintr-un URL sau dintr-un nume care arată deja ca un domeniu.
+function toDomain(raw) {
+  const s = (raw || '').toString().trim();
+  if (!s) return '';
+  try {
+    return new URL(s.startsWith('http') ? s : 'https://' + s).hostname.replace(/^www\./, '');
+  } catch {
+    return /\.[a-z]{2,}$/i.test(s) ? s.replace(/^www\./, '') : '';
+  }
+}
+
+// listPartners: întoarce programele 2P acceptate (partenerii afiliați) + dacă sunt deja trackuiți.
+export const listPartners = onCall(
+  { secrets: [TP_EMAIL, TP_PASS], cors: true, region: 'europe-west1', maxInstances: 5 },
+  async (req) => {
+    if (req.auth?.token?.email !== ADMIN_EMAIL) {
+      throw new HttpsError('permission-denied', 'Doar adminul poate vedea partenerii.');
+    }
+    const auth = await signIn();
+    const res = await fetch(`${BASE}/affiliate/programs.json?filter[relation]=accepted&perpage=100`, { headers: auth });
+    if (!res.ok) throw new HttpsError('unavailable', `2P programs eșuat (status ${res.status})`);
+    const j = await res.json();
+    const progs = j.programs || j.data || [];
+
+    const feedDomains = new Set(FEEDS.map(f => f.domain));
+    const partners = progs.map(p => {
+      const domain = toDomain(p.base_url || p.url || p.site_url || p.name);
+      return {
+        name: p.name || domain || '(necunoscut)',
+        domain,
+        status: p.status || p.relation || 'accepted',
+        feeds: p.product_feeds_count ?? null,
+        tracked: domain ? feedDomains.has(domain) : false
+      };
+    });
+    partners.sort((a, b) => (Number(b.tracked) - Number(a.tracked)) || a.name.localeCompare(b.name));
+    return { count: partners.length, partners };
+  }
+);

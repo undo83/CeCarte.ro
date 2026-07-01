@@ -223,9 +223,11 @@ if (!isConfigured) {
 
 // ---- Navigație între view-uri ----
 const VIEWS = ['parteneri', 'adauga', 'lista'];
+let partnersLoaded = false;
 function switchView(name) {
   VIEWS.forEach(v => show('view-' + v, v === name));
   document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  if (name === 'parteneri' && !partnersLoaded) { partnersLoaded = true; renderPartners(); }
 }
 document.querySelectorAll('.nav-item').forEach(b => b.onclick = () => switchView(b.dataset.view));
 
@@ -265,18 +267,29 @@ onAuthStateChanged(auth, async (user) => {
 
   db = await getDb();
   fs = await firestore();
-  renderPartners();
   addMerchantRow();
   await renderList();
 });
 
 // ---- Partenerii mei ----
-function renderPartners() {
-  $('partner-list').innerHTML = PARTNERS.map(p => `
+function partnerRows(list) {
+  return list.map(p => `
     <div class="partner-item">
-      <div class="meta"><b>${p.name}</b><span>${p.domain}</span></div>
+      <div class="meta"><b>${p.name}</b><span>${p.domain || ''}${p.feeds != null ? ' · ' + p.feeds + ' feed-uri' : ''}</span></div>
       <span class="badge ${p.tracked ? 'ok' : 'warn'}">${p.tracked ? '✓ Trackuit' : '⚙ De configurat'}</span>
     </div>`).join('');
+}
+
+async function renderPartners() {
+  const box = $('partner-list');
+  box.innerHTML = '<p class="small">Se încarcă partenerii din 2Performant…</p>';
+  try {
+    const { partners } = await callFunction('listPartners', {});
+    if (partners && partners.length) { box.innerHTML = partnerRows(partners); return; }
+    box.innerHTML = partnerRows(PARTNERS) + '<p class="small mt">(listă locală — 2P n-a întors parteneri)</p>';
+  } catch (e) {
+    box.innerHTML = partnerRows(PARTNERS) + `<p class="small mt">(listă locală — nu am putut interoga 2P: ${e.message})</p>`;
+  }
 }
 
 // ---- Merchant rows ----
