@@ -60,11 +60,13 @@
   footer{text-align:center;padding:30px 0 40px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
   footer a{color:var(--muted)}
   .loading{text-align:center;color:var(--muted);font-size:14px;padding:20px}
+  .month-block{margin-bottom:34px}
+  .month-block .sec-title{margin-bottom:14px}
 
   /* Desktop: grilă de cărți pe 3 coloane, lărgită dincolo de coloana îngustă */
   @media (min-width:760px){
     #recomandari .sec-title{text-align:center}
-    #book-grid{
+    .book-grid{
       display:grid;
       grid-template-columns:repeat(3,1fr);
       gap:18px;
@@ -72,11 +74,11 @@
       margin-left:50%;
       transform:translateX(-50%);
     }
-    #book-grid .loading{grid-column:1/-1}
-    #book-grid .book{flex-direction:column;align-items:center;text-align:center;margin-bottom:0}
-    #book-grid .cover{width:120px;height:180px}
-    #book-grid .book-info{align-items:center;width:100%}
-    #book-grid .merchant-row{justify-content:center}
+    .book-grid .loading{grid-column:1/-1}
+    .book-grid .book{flex-direction:column;align-items:center;text-align:center;margin-bottom:0}
+    .book-grid .cover{width:120px;height:180px}
+    .book-grid .book-info{align-items:center;width:100%}
+    .book-grid .merchant-row{justify-content:center}
   }
 </style>
 </head>
@@ -96,8 +98,7 @@
   </section>
 
   <section id="recomandari" style="padding-top:36px">
-    <h2 class="sec-title">Top recomandări</h2>
-    <div id="book-grid"><div class="loading">Se încarcă recomandările…</div></div>
+    <div id="books-host"><div class="loading">Se încarcă recomandările…</div></div>
   </section>
 
   <div class="capture">
@@ -127,8 +128,41 @@
 import { loadBooks, saveLead, getCachedBooks } from './js/books.js';
 import { affiliateLink } from './js/affiliate.js';
 
-const grid = document.getElementById('book-grid');
+const booksHost = document.getElementById('books-host');
 const stars = n => '★★★★★☆☆☆☆☆'.slice(5 - n, 10 - n);
+
+const MONTHS_RO = ['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'];
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+// Luna unei cărți: câmpul `month` ("YYYY-MM") dacă există, altfel data adăugării (createdAt)
+function monthOf(b){
+  if (typeof b.month === 'string' && /^\d{4}-\d{2}$/.test(b.month)) {
+    const [y, m] = b.month.split('-').map(Number);
+    return { key: y * 100 + (m - 1), label: `${MONTHS_RO[m - 1]} ${y}` };
+  }
+  const d = typeof b.createdAt === 'number' ? new Date(b.createdAt) : null;
+  if (!d || isNaN(d.getTime())) return null;
+  return { key: d.getFullYear() * 100 + d.getMonth(), label: `${MONTHS_RO[d.getMonth()]} ${d.getFullYear()}` };
+}
+
+// Randează cărțile grupate pe luni (cea mai nouă lună sus)
+function renderBooks(books){
+  const groups = new Map();  // key -> { label, books:[] }
+  const undated = [];
+  for (const b of books){
+    const m = monthOf(b);
+    if (!m){ undated.push(b); continue; }
+    if (!groups.has(m.key)) groups.set(m.key, { label: m.label, books: [] });
+    groups.get(m.key).books.push(b);
+  }
+  const blocks = [...groups.entries()]
+    .sort((a, b) => b[0] - a[0])
+    .map(([, g]) => `<div class="month-block"><h2 class="sec-title">Cărțile lunii ${cap(g.label)}</h2><div class="book-grid">${g.books.map(renderBook).join('')}</div></div>`);
+  if (undated.length){
+    blocks.push(`<div class="month-block"><h2 class="sec-title">Recomandări</h2><div class="book-grid">${undated.map(renderBook).join('')}</div></div>`);
+  }
+  booksHost.innerHTML = blocks.join('') || '<div class="loading">Nu am putut încărca recomandările.</div>';
+}
 
 function renderBook(b){
   const merchants = (b.merchants || []).map(m =>
@@ -169,7 +203,7 @@ function trackWhenReady(fn){
 // Paint instant din cache (fără flash la revizite)
 const cached = getCachedBooks();
 if (cached) {
-  grid.innerHTML = cached.map(renderBook).join('');
+  renderBooks(cached);
   renderVideos(cached);
 }
 
@@ -177,7 +211,7 @@ if (cached) {
 try {
   const books = await loadBooks();
   if (JSON.stringify(books) !== JSON.stringify(cached)) {
-    grid.innerHTML = books.map(renderBook).join('');
+    renderBooks(books);
     renderVideos(books);
   }
   // ViewContent: userul a văzut recomandările (semnal de funnel pentru TikTok)
@@ -186,12 +220,12 @@ try {
     contents: books.slice(0, 20).map(b => ({ content_id: b.title || '', content_name: b.title || '' }))
   }));
 } catch (e) {
-  if (!cached) grid.innerHTML = '<div class="loading">Nu am putut încărca recomandările.</div>';
+  if (!cached) booksHost.innerHTML = '<div class="loading">Nu am putut încărca recomandările.</div>';
   console.error(e);
 }
 
 // Tracking click pe link-urile de cumpărare (doar dacă pixelul e încărcat = consimțământ dat)
-grid.addEventListener('click', (e) => {
+booksHost.addEventListener('click', (e) => {
   const a = e.target.closest('a.buy');
   if (!a || !window.ttq) return;
   const book = a.closest('.book');

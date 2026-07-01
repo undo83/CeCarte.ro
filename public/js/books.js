@@ -63,7 +63,14 @@ export async function loadBooks() {
   try {
     const { collection, getDocs, query, orderBy } = await firestore();
     const snap = await getDocs(query(collection(db, 'books'), orderBy('order')));
-    const books = snap.docs.map(d => d.data());
+    const books = snap.docs.map(d => {
+      const data = d.data();
+      const ts = data.createdAt;
+      // Normalizează la milisecunde (Timestamp Firestore nu supraviețuiește JSON-ului din cache)
+      const createdAt = ts && typeof ts.toMillis === 'function' ? ts.toMillis()
+        : (typeof ts === 'number' ? ts : null);
+      return { ...data, createdAt };
+    });
     if (books.length) { cacheBooks(books); return books; }
     return STATIC_BOOKS;
   } catch (e) {
