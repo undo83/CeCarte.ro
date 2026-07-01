@@ -1,0 +1,14 @@
+{
+  "name": "CeCarte.ro",
+  "short_name": "CeCarte",
+  "description": "Recenzii video scurte ale celor mai bune cărți. Găsește următoarea ta lectură în 30 de secunde.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf6f0",
+  "theme_color": "#b5512f",
+  "icons": [
+    { "src": "/img/favicon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/img/favicon-512.png", "type": "image/png", "sizes": "512x512" },
+    { "src": "/img/favicon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ]
+}
