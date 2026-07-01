@@ -42,6 +42,22 @@ export const STATIC_BOOKS = [
   }
 ];
 
+// Slug pentru paginile dedicate (ex. /privighetoarea). Normalizează diacriticele românești.
+export function slugify(s) {
+  return (s || '').toString().toLowerCase()
+    .replace(/[șş]/g, 's').replace(/[țţ]/g, 't')
+    .replace(/ă/g, 'a').replace(/â/g, 'a').replace(/î/g, 'i')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/(^-+|-+$)/g, '');
+}
+
+// Găsește cartea după slug: câmpul explicit `slug` dacă există, altfel slug derivat din titlu.
+export function findBookBySlug(books, slug) {
+  const s = slugify(slug);
+  if (!s) return null;
+  return (books || []).find(b => slugify(b.slug || b.title) === s) || null;
+}
+
 // Cache local pentru afișare instantă (stale-while-revalidate).
 const BOOKS_CACHE_KEY = 'cecarte_books_v1';
 
