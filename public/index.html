@@ -140,10 +140,23 @@ function renderVideos(books){
   const s = document.createElement('script'); s.async = true; s.src = 'https://www.tiktok.com/embed.js'; document.body.appendChild(s);
 }
 
+// Rulează fn(ttq) când pixelul e disponibil (acum, dacă e deja consimțit; altfel la Accept)
+function trackWhenReady(fn){
+  if (window.ttq) { fn(window.ttq); return; }
+  window.addEventListener('cookie-consent', (e) => {
+    if (e.detail === 'accepted' && window.ttq) fn(window.ttq);
+  }, { once: true });
+}
+
 try {
   const books = await loadBooks();
   grid.innerHTML = books.map(renderBook).join('');
   renderVideos(books);
+  // ViewContent: userul a văzut recomandările (semnal de funnel pentru TikTok)
+  trackWhenReady(ttq => ttq.track('ViewContent', {
+    content_type: 'product',
+    contents: books.slice(0, 20).map(b => ({ content_id: b.title || '', content_name: b.title || '' }))
+  }));
 } catch (e) {
   grid.innerHTML = '<div class="loading">Nu am putut încărca recomandările.</div>';
   console.error(e);
@@ -168,6 +181,8 @@ document.getElementById('lead-form').addEventListener('submit', async (e) => {
   btn.disabled = true;
   await saveLead(email);
   btn.textContent = 'Te-ai abonat! ✓';
+  // CompleteRegistration: conversia reală pe care o deții (abonare la newsletter)
+  if (window.ttq) ttq.track('CompleteRegistration', { content_name: 'Newsletter' });
 });
 </script>
 <script src="/js/cookie-consent.js"></script>
