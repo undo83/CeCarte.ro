@@ -59,8 +59,10 @@ export const searchProducts = onCall(
 
     for (const f of FEEDS) {
       try {
-        // 2P filtrează (fuzzy) cu filter[query]; cerem mai multe și filtrăm local pe relevanță.
-        const url = `${BASE}/affiliate/product_feeds/${f.id}/products.json?filter[query]=${encodeURIComponent(query)}&perpage=25`;
+        // 2P filtrează (fuzzy) cu filter[query], DAR e sensibil la diacritice, iar titlurile din
+        // feed sunt stocate fără diacritice ("canta", nu "cântă"). Trimitem interogarea normalizată
+        // (fără diacritice) ca să prindem titlul; precizia o dă filtrarea locală de mai jos.
+        const url = `${BASE}/affiliate/product_feeds/${f.id}/products.json?filter[query]=${encodeURIComponent(qn)}&perpage=25`;
         const res = await fetch(url, { headers: auth });
         if (!res.ok) continue;
         const j = await res.json();
