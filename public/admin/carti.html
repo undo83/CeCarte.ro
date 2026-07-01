@@ -414,9 +414,10 @@ $('s-btn').onclick = async () => {
 $('s-query').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('s-btn').click(); } });
 
 function fillFromProduct(r) {
-  const parts = (r.title || '').split(/\s+[-–]\s+/);
+  // Titlurile din feed separă autorul cu „/" (Titlu/Autor) sau cu „ - " (Titlu - Autor).
+  const parts = (r.title || '').split(/\s*\/\s*|\s+[-–]\s+/).map(s => s.trim()).filter(Boolean);
   $('f-title').value = parts[0] || r.title || '';
-  if (parts.length > 1) $('f-author').value = parts.slice(1).join(' - ');
+  if (parts.length > 1) $('f-author').value = parts.slice(1).join(', ');
   if (r.category) $('f-genre').value = r.category;
   if (r.image) $('f-cover').value = r.image;
   $('merchant-rows').innerHTML = '';
