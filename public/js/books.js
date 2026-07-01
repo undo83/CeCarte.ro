@@ -42,17 +42,33 @@ export const STATIC_BOOKS = [
   }
 ];
 
+// Cache local pentru afișare instantă (stale-while-revalidate).
+const BOOKS_CACHE_KEY = 'cecarte_books_v1';
+
+export function getCachedBooks() {
+  try {
+    const raw = localStorage.getItem(BOOKS_CACHE_KEY);
+    const arr = raw ? JSON.parse(raw) : null;
+    return Array.isArray(arr) && arr.length ? arr : null;
+  } catch { return null; }
+}
+
+function cacheBooks(books) {
+  try { localStorage.setItem(BOOKS_CACHE_KEY, JSON.stringify(books)); } catch {}
+}
+
 export async function loadBooks() {
   const db = await getDb();
-  if (!db) return STATIC_BOOKS;
+  if (!db) return getCachedBooks() || STATIC_BOOKS;
   try {
     const { collection, getDocs, query, orderBy } = await firestore();
     const snap = await getDocs(query(collection(db, 'books'), orderBy('order')));
     const books = snap.docs.map(d => d.data());
-    return books.length ? books : STATIC_BOOKS;
-  } catch (e) {
-    console.warn('Firestore indisponibil, folosesc datele statice:', e);
+    if (books.length) { cacheBooks(books); return books; }
     return STATIC_BOOKS;
+  } catch (e) {
+    console.warn('Firestore indisponibil, folosesc cache/date statice:', e);
+    return getCachedBooks() || STATIC_BOOKS;
   }
 }
 

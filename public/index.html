@@ -60,6 +60,24 @@
   footer{text-align:center;padding:30px 0 40px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
   footer a{color:var(--muted)}
   .loading{text-align:center;color:var(--muted);font-size:14px;padding:20px}
+
+  /* Desktop: grilă de cărți pe 3 coloane, lărgită dincolo de coloana îngustă */
+  @media (min-width:760px){
+    #recomandari .sec-title{text-align:center}
+    #book-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+      width:min(1040px,94vw);
+      margin-left:50%;
+      transform:translateX(-50%);
+    }
+    #book-grid .loading{grid-column:1/-1}
+    #book-grid .book{flex-direction:column;align-items:center;text-align:center;margin-bottom:0}
+    #book-grid .cover{width:120px;height:180px}
+    #book-grid .book-info{align-items:center;width:100%}
+    #book-grid .merchant-row{justify-content:center}
+  }
 </style>
 </head>
 <body>
@@ -106,7 +124,7 @@
 </footer>
 
 <script type="module">
-import { loadBooks, saveLead } from './js/books.js';
+import { loadBooks, saveLead, getCachedBooks } from './js/books.js';
 import { affiliateLink } from './js/affiliate.js';
 
 const grid = document.getElementById('book-grid');
@@ -140,12 +158,22 @@ function renderVideos(books){
   const s = document.createElement('script'); s.async = true; s.src = 'https://www.tiktok.com/embed.js'; document.body.appendChild(s);
 }
 
+// Paint instant din cache (fără flash la revizite)
+const cached = getCachedBooks();
+if (cached) {
+  grid.innerHTML = cached.map(renderBook).join('');
+  renderVideos(cached);
+}
+
+// Revalidare în fundal: re-randăm doar dacă datele s-au schimbat
 try {
   const books = await loadBooks();
-  grid.innerHTML = books.map(renderBook).join('');
-  renderVideos(books);
+  if (JSON.stringify(books) !== JSON.stringify(cached)) {
+    grid.innerHTML = books.map(renderBook).join('');
+    renderVideos(books);
+  }
 } catch (e) {
-  grid.innerHTML = '<div class="loading">Nu am putut încărca recomandările.</div>';
+  if (!cached) grid.innerHTML = '<div class="loading">Nu am putut încărca recomandările.</div>';
   console.error(e);
 }
 
