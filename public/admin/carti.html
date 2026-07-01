@@ -356,14 +356,23 @@ $('btn-save').onclick = async () => {
     videoScript: $('f-script').value.trim(),
     merchants: collectMerchants(), updatedAt: fs.serverTimestamp()
   };
-  const { collection, doc, addDoc, setDoc } = fs;
+  const { collection, doc, addDoc, setDoc, getDocs } = fs;
   const id = $('f-id').value;
+  const btn = $('btn-save');
+  btn.disabled = true;
   try {
+    // Slug unic: altă carte nu poate avea același link scurt (efectiv = slug sau titlu).
+    const snap = await getDocs(collection(db, 'books'));
+    const clash = snap.docs.find(d => d.id !== id && slugify(d.data().slug || d.data().title) === data.slug);
+    if (clash) {
+      return alert(`Link-ul scurt „cecarte.ro/${data.slug}" e deja folosit de „${clash.data().title}". Alege alt slug.`);
+    }
     if (id) await setDoc(doc(db, 'books', id), data, { merge: true });
     else await addDoc(collection(db, 'books'), { ...data, createdAt: fs.serverTimestamp() });
     resetForm(); await renderList();
     switchView('lista');
   } catch (e) { alert('Eroare la salvare: ' + e.message); }
+  finally { btn.disabled = false; }
 };
 
 // ---- List ----
