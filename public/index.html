@@ -23,7 +23,8 @@
   .wrap{max-width:520px;margin:0 auto;padding:0 18px}
   header{position:sticky;top:0;z-index:20;background:rgba(250,246,240,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
   .nav{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;max-width:520px;margin:0 auto}
-  .logo{font-weight:800;font-size:20px;letter-spacing:-.3px}
+  .logo{font-weight:800;font-size:20px;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+  .logo-icon{height:34px;width:auto;display:block}
   .logo span{color:var(--accent)}
   .nav a{font-size:13px;color:var(--muted);text-decoration:none;font-weight:600}
   .hero{text-align:center;padding:34px 0 22px}
@@ -92,7 +93,7 @@
 <body>
 <header>
   <div class="nav">
-    <div class="logo">Ce<span>Carte</span></div>
+    <div class="logo"><img class="logo-icon" src="/img/logo.png" alt="">Ce<span>Carte</span></div>
     <a href="#recomandari">Recomandări</a>
   </div>
 </header>
